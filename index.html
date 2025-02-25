@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Kartu Produk</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .product-card {
+            background-color: #E0F1EA;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            width: 250px;
+            text-align: center;
+        }
+        .product-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Generator Kartu Produk</h1>
+        <form id="imageForm">
+            <div id="imageInputs">
+                <div class="form-group">
+                    <label for="productName">Nama Produk:</label>
+                    <input type="text" class="form-control" name="productName[]" placeholder="Masukkan Nama Produk" required>
+                </div>
+                <div class="form-group">
+                    <label for="url">URL Halaman:</label>
+                    <input type="text" class="form-control" name="url[]" placeholder="Masukkan URL Halaman" required>
+                </div>
+                <div class="form-group">
+                    <label for="imageUrl">URL Gambar:</label>
+                    <input type="text" class="form-control" name="imageUrl[]" placeholder="Masukkan URL Gambar" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Harga:</label>
+                    <input type="text" class="form-control" name="price[]" placeholder="Masukkan Harga" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="addImageInput()">Tambah Gambar</button>
+            <button type="button" class="btn btn-success" onclick="generateHTML()">Generate HTML</button>
+        </form>
+        <pre id="output" class="mt-4" style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;"></pre>
+    </div>
+
+    <script>
+        function addImageInput() {
+            const imageInputs = document.getElementById('imageInputs');
+            const newInput = document.createElement('div');
+            newInput.innerHTML = `
+                <div class="form-group">
+                    <label for="productName">Nama Produk:</label>
+                    <input type="text" class="form-control" name="productName[]" placeholder="Masukkan Nama Produk" required>
+                </div>
+                <div class="form-group">
+                    <label for="url">URL Halaman:</label>
+                    <input type="text" class="form-control" name="url[]" placeholder="Masukkan URL Halaman" required>
+                </div>
+                <div class="form-group">
+                    <label for="imageUrl">URL Gambar:</label>
+                    <input type="text" class="form-control" name="imageUrl[]" placeholder="Masukkan URL Gambar" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Harga:</label>
+                    <input type="text" class="form-control" name="price[]" placeholder="Masukkan Harga" required>
+                </div>
+            `;
+            imageInputs.appendChild(newInput);
+        }
+
+        function formatPrice(price) {
+            // Convert the price to a number and format it with commas as thousands separators
+            const number = parseInt(price, 10);
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(number);
+        }
+
+        function generateHTML() {
+            const form = document.getElementById('imageForm');
+            const formData = new FormData(form);
+            const productNames = formData.getAll('productName[]');
+            const urls = formData.getAll('url[]');
+            const imageUrls = formData.getAll('imageUrl[]');
+            const prices = formData.getAll('price[]');
+
+            let html = `<div style="overflow-x: auto; padding: 20px; display: flex; gap: 10px; scroll-behavior: smooth;">\n`;
+
+            for (let i = 0; i < urls.length; i++) {
+                // Format the price
+                const formattedPrice = formatPrice(prices[i]);
+
+                html += `    <div style="flex: 0 0 auto; background-color: #E0F1EA; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 15px; width: 250px; text-align: center;">\n`;
+                html += `        <a href="${urls[i]}" style="display: block;">\n`;
+                html += `            <img src="${imageUrls[i]}" alt="Gambar ${i + 1}" style="width: 100%; height: auto; border-radius: 8px;">\n`;
+                html += `        </a>\n`;
+                html += `        <p style="margin: 5px 0; font-weight:;">${productNames[i]}</p>\n`; // Added product name
+                html += `        <p style="margin: 5px 0; font-weight: bold;">${formattedPrice}</p>\n`;
+                html += `        <a href="${urls[i].includes('lynk.id') ? urls[i] + '/checkout' : urls[i]}" style="display: inline-block; background-color: #2DB47C; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">Beli Sekarang</a>\n`;
+                html += `    </div>\n`;
+            }
+
+            html += `</div>`;
+
+            // Salin hasil ke clipboard
+            navigator.clipboard.writeText(html).then(() => {
+                alert('HTML telah disalin ke clipboard!');
+            }, (err) => {
+                console.error('Gagal menyalin: ', err);
+            });
+
+            document.getElementById('output').textContent = html;
+        }
+    </script>
+</body>
+</html>
